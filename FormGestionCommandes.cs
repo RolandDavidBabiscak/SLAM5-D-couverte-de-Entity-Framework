@@ -1,70 +1,43 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
+using System;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
+using SLAM5_TP1.Entities;  // Remplacer par le namespace correct
 
-namespace WinFormsApp1
+public partial class FormGestionCommandes : Form
 {
-    public partial class FormGestionCommandes : Form
+    public FormGestionCommandes()
     {
-        public FormGestionCommandes()
+        InitializeComponent();
+    }
+
+    // Événement pour charger la liste des clients et partitions
+    private void FormGestionCommandes_Load(object sender, EventArgs e)
+    {
+        comboBoxClients.DataSource = Modele.ListeClients();
+        comboBoxClients.DisplayMember = "Nomcli";
+        comboBoxClients.ValueMember = "Numcli";
+
+        listBoxPartitions.DataSource = Modele.ListePartitions();
+        listBoxPartitions.DisplayMember = "Libpart";
+        listBoxPartitions.ValueMember = "Numpart";
+    }
+
+    // Événement pour ajouter une commande
+    private void btnAjouter_Click(object sender, EventArgs e)
+    {
+        decimal montant = numericMontant.Value;
+        DateTime dateC = dateTimePicker.Value;
+        int idClient = (int)comboBoxClients.SelectedValue;
+
+        var selectedPartitions = listBoxPartitions.SelectedItems.Cast<Partition>().Select(p => p.Numpart).ToList();
+
+        if (Modele.AjoutCommande(montant, dateC, idClient, selectedPartitions))
         {
-            InitializeComponent();
+            MessageBox.Show("Commande ajoutée avec succès !");
         }
-
-        private void FormGestionCommandes_Load(object sender, EventArgs e)
+        else
         {
-            bs_Ajout.DataSource = Modele.listeClients(); // appel de la méthode listeClients
-            cb_Ajout.ValueMember = "NUMCLI"; //permet de stocker l'identifiant
-            cb_Ajout.DisplayMember = "NOMCLI";
-            bs_Ajout.DataSource = Modele.listeClients();
-            cb_Ajout.DataSource = bs_Ajout;
-        }
-
-
-        private void textBox1_KeyPress(object sender, KeyPressEventArgs e)
-        {
-
-            NumberEntered = false;
-
-            if (!(Char.IsDigit(e.KeyChar) || (e.KeyChar == (char)Keys.Back)))
-            {
-                MessageBox.Show("Veuillez saisir uniquement des chiffres");
-                e.Handled = true;
-            }
-        }
-
-        private void textBox1_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void dateC_ValueChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void btn_Annuler_Click_1(object sender, EventArgs e)
-        {
-            //FormGestionCommandes formGestionConnandes = new FormGestionCommandes();
-            this.Hide();
-            //formGestionConnandes.Show();
-        }
-
-        private void btn_Ok_Click_1(object sender, EventArgs e)
-        {
-
-        }
-
-        private void btn_Fermer_Click_1(object sender, EventArgs e)
-        {
-            //FormGestionCommandes formGestionConnandes = new FormGestionCommandes();
-            this.Close();
+            MessageBox.Show("Erreur lors de l'ajout de la commande.");
         }
     }
 }
